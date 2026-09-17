@@ -6,6 +6,8 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /app
 COPY pyproject.toml README.md LICENSE CHANGELOG.md ./
 COPY src ./src
-RUN python -m pip install --no-cache-dir .
+RUN python -m pip install --no-cache-dir . \
+    && python -c "from jmcomic_ai.mcp.server import run_server" \
+    && jmai --version
 
 CMD ["sh","-c","exec jmai mcp http --host 0.0.0.0 --port \"${PORT:-8000}\""]

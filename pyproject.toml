@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "jmcomic>=2.7.6,<3.0.0",
-    "mcp",
+    "mcp==1.25.0",
     "typer",
     "watchdog>=6.0.0",
 ]
