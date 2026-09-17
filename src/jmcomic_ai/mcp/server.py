@@ -1,9 +1,11 @@
 import inspect
+import os
 from collections.abc import Callable
 from functools import wraps
 from typing import Any, Literal, cast
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 from jmcomic_ai.core import JmcomicService
 
@@ -107,7 +109,24 @@ def _register_resources(mcp_server: FastMCP, service: JmcomicService):
 def run_server(transport: str, service: JmcomicService, host: str = "127.0.0.1", port: int = 8000):
     """启动 MCP 服务器，自动注册 service 的所有公共方法为 tools"""
 
-    mcp_server = FastMCP("jmcomic-ai")
+    # Railway forwards the public domain as Host; keep DNS rebinding protection.
+    allowed_hosts = ["127.0.0.1:*", "localhost:*", "[::1]:*"]
+    allowed_origins = ["http://127.0.0.1:*", "http://localhost:*", "http://[::1]:*"]
+    public_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip()
+    if public_domain:
+        allowed_hosts.extend([public_domain, f"{public_domain}:*"])
+        allowed_origins.extend([f"https://{public_domain}", f"https://{public_domain}:*"])
+
+    mcp_server = FastMCP(
+        "jmcomic-ai",
+        host=host,
+        port=port,
+        transport_security=TransportSecuritySettings(
+            enable_dns_rebinding_protection=True,
+            allowed_hosts=allowed_hosts,
+            allowed_origins=allowed_origins,
+        ),
+    )
 
     # 动态注册所有 service 方法为 tools
     _register_service_tools(mcp_server, service)

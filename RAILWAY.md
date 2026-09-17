@@ -14,3 +14,7 @@
 在依赖下载或登录状态前，应挂载持久化磁盘，并配置 JM_OPTION_PATH、JM_LOG_PATH、JM_TASK_LOG_DIR，以及 option.yml 中的下载目录，使文件保存在挂载目录内。不要提交账号密码、Cookie 或密钥。
 
 HTTP MCP 的默认接口路径为 /mcp。请先完成连接鉴权，再公开服务和接入客户端。
+
+## 公网 Host 校验
+
+服务会自动读取 Railway 提供的 RAILWAY_PUBLIC_DOMAIN，将该域名加入 MCP 的 Host 与 HTTPS Origin 允许列表，保持 DNS rebinding 防护开启。如果连接报 Invalid Host header，请确认该变量为当前公网域名（不带 https:// 或路径）；必要时在 Railway Variables 中设置后重新部署。此校验不是用户鉴权。
